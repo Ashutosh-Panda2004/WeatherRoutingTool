@@ -68,6 +68,40 @@ def test_safe_crossing_land_crossing():
     assert is_constrained[1] == 0
 
 
+'''
+    test safe crossing for a segment crossing the antimeridian: open water in the
+    South Pacific must not be reported as crossing land, while a genuine land
+    crossing off the Chilean coast stays constrained
+'''
+
+
+def test_safe_crossing_antimeridian():
+    time = 0
+
+    land_crossing = LandCrossing()
+
+    constraint_list = basic_test_func.generate_dummy_constraint_list()
+    constraint_list.add_neg_constraint(land_crossing)
+
+    lat_start = np.array([-30.0])
+    lon_start = np.array([179.5])
+    lat_end = np.array([-30.0])
+    lon_end = np.array([-179.5])
+
+    is_constrained = [False]
+    is_constrained = constraint_list.safe_crossing(lat_start, lon_start, lat_end, lon_end, time, is_constrained)
+    assert is_constrained[0] == 0
+
+    lat_start = np.array([-30.0])
+    lon_start = np.array([-70.5])
+    lat_end = np.array([-30.0])
+    lon_end = np.array([-69.0])
+
+    is_constrained = [False]
+    is_constrained = constraint_list.safe_crossing(lat_start, lon_start, lat_end, lon_end, time, is_constrained)
+    assert is_constrained[0] == 1
+
+
 def test_safe_waterdepth():
     lat = np.array([[51.16, 52.5], [52, 52], ])
     lon = np.array([[2.5, 2.5], [2.05, 2.5], ])

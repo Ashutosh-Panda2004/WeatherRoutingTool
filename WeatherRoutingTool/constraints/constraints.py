@@ -436,7 +436,10 @@ class ConstraintsList:
         debug = False
 
         delta_lats = (lat_end - lat_start) * self.pars.resolution
-        delta_lons = (lon_end - lon_start) * self.pars.resolution
+        # normalise the longitude difference to the shortest way around the
+        # globe ([-180, 180)), so that segments crossing the antimeridian
+        # are checked along their actual path instead of the long way around
+        delta_lons = ((lon_end - lon_start + 180) % 360 - 180) * self.pars.resolution
         x0 = lat_start
         y0 = lon_start
 
@@ -447,7 +450,7 @@ class ConstraintsList:
         nSteps = int(1.0 / self.pars.resolution)
         for iStep in range(0, nSteps):
             x = x0 + delta_lats
-            y = y0 + delta_lons
+            y = (y0 + delta_lons + 180) % 360 - 180
 
             is_constrained = self.safe_endpoint(x, y, current_time, is_constrained)
             x0 = x
